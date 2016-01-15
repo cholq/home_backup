@@ -38,8 +38,6 @@ def process_directory(dir_name, bkup_dir)
 
   puts " ******* Processing Directory: #{dir_name}"
 
-  #create_dir(bkup_dir, dir_name)
-
   # First, process files in this dir
   Find.find(dir_name) do |item|
  
@@ -63,18 +61,6 @@ def process_directory(dir_name, bkup_dir)
     end
   
   end
-
-  # Next, process sub-directories
-=begin
-  Dir.chdir(dir_name)
-  Dir.glob("**/") do |item| 
-    if File.directory?(item)
-      puts " sub-dir #{item}" 
-      process_directory(File.join(dir_name, item), bkup_dir)
-      Dir.chdir(dir_name)
-    end
-  end
-=end
 
 end
 
