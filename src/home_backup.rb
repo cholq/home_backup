@@ -44,9 +44,6 @@ def process_directory(dir_name, bkup_dir)
     file_path = File.dirname(item)
     file_name = File.basename(item)
 
-    puts " * * * * *  dirname = #{file_path}"
-    puts " * * * * *  basename = #{file_name}"
- 
     if FileTest.directory?(item)
       create_dir(File.join(bkup_dir, item))
     else
