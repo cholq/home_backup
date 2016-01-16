@@ -14,17 +14,13 @@ end
 
 def create_dir(new_dir)
   unless File.directory?(new_dir)
-    puts " Creating Directory #{new_dir}"
     FileUtils.mkdir_p(new_dir)
   end
 end
 
 def determine_file_action(src_dir, dest_dir, file_name)
   ret_action = DirAction::NoAction
-  puts "   ! ! ! ! checking for existance of file #{File.join(dest_dir, src_dir, file_name)}"
   if File.exist?(File.join(dest_dir, src_dir, file_name))
-    puts "     ^ ^ ^ ^ mtime for src dir is #{File.mtime(File.join(src_dir, file_name))}"
-    puts "     ^ ^ ^ ^ mtime for dest dir is #{File.mtime(File.join(dest_dir, src_dir, file_name))}"
     if File.mtime(File.join(src_dir, file_name)) > File.mtime(File.join(dest_dir, src_dir, file_name))
       ret_action = DirAction::Update
     end
@@ -37,6 +33,9 @@ end
 def process_directory(dir_name, bkup_dir)
 
   puts " ******* Processing Directory: #{dir_name}"
+  total_file = 0
+  total_add = 0
+  total_update = 0
 
   # First, process files in this dir
   Find.find(dir_name) do |item|
@@ -47,17 +46,22 @@ def process_directory(dir_name, bkup_dir)
     if FileTest.directory?(item)
       create_dir(File.join(bkup_dir, item))
     else
+      total_file += 1
       fileAction = determine_file_action(file_path, bkup_dir, file_name)
       case fileAction
         when DirAction::Create
           FileUtils.cp(item, File.join(bkup_dir, file_path))
+          total_add += 1
         when DirAction::Update
           FileUtils.cp(item, File.join(bkup_dir, file_path))
+          total_update += 1
       end
-      puts " *********** action for #{item} is #{fileAction}"
     end
   
   end
+
+  puts "   ***  Total Files Added:    #{total_add}"
+  puts "   ***  Total Files Updated:  #{total_update}"
 
 end
 

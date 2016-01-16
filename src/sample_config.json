@@ -3,7 +3,7 @@
    "computer_id": "test_computer_nickname" ,
    "local_directory":  {
        "1": "/Users/user_name/Projects" ,
-       "2": "/Users/user_name/Documents"
+       "2": "/Users/user_name/Documents",
        "3": "/Users/user_name/Music"
        }
 }
