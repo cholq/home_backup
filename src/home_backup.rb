@@ -58,6 +58,7 @@ def process_directory(dir_name, bkup_dir, except_hash)
   total_file = 0
   total_add = 0
   total_update = 0
+  total_skip = 0
 
   # First, process files in this dir
   Find.find(dir_name) do |item|
@@ -66,7 +67,8 @@ def process_directory(dir_name, bkup_dir, except_hash)
     file_name = File.basename(item)
 
     if is_exception_directory(except_hash, file_path) 
-      puts "The directory #{file_path} is in an exception direcotry"
+      #puts "The directory #{file_path} is in an exception direcotry"
+      total_skip += 1
     else
       if FileTest.directory?(item)
         create_dir(File.join(bkup_dir, item))
@@ -76,9 +78,11 @@ def process_directory(dir_name, bkup_dir, except_hash)
         case fileAction
           when DirAction::Create
             FileUtils.cp(item, File.join(bkup_dir, file_path))
+            puts "   Adding file: #{item}"
             total_add += 1
           when DirAction::Update
             FileUtils.cp(item, File.join(bkup_dir, file_path))
+            puts "   Updating file: #{item}"
             total_update += 1
         end
       end
@@ -86,6 +90,7 @@ def process_directory(dir_name, bkup_dir, except_hash)
   end
   puts "   ***  Total Files Added:    #{total_add}"
   puts "   ***  Total Files Updated:  #{total_update}"
+  puts "   ***  Total Files Skipped:  #{total_skip}"
 
 end
 
