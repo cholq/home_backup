@@ -1,0 +1,17 @@
+#!/bin/bash
+
+if [ -d /Volumes/home_backup ]; then
+  echo "Backup Directory Exists"
+else
+  echo "Backup Directory Does Not Exist"
+  mount_backup_drive
+fi
+
+_now=$(date +"%Y%m%d-%H%M%S")
+_file="/Users/user-name/path/for/logs/home_backup.$_now.log"
+
+ruby /Users/user-name/path/for/script/home_backup.rb > "$_file"
+
+open -e "$_file"
+
+echo "home backup complete"
