@@ -5,5 +5,8 @@
        "1": "/Users/user_name/Projects" ,
        "2": "/Users/user_name/Documents",
        "3": "/Users/user_name/Music"
+       } ,
+   "local_exception":  {
+       "1": "/Users/user_name/Projects/sample_project"
        }
 }

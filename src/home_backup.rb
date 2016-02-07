@@ -30,7 +30,29 @@ def determine_file_action(src_dir, dest_dir, file_name)
   return ret_action
 end
 
-def process_directory(dir_name, bkup_dir)
+def is_in_exception(except_dir, dir_name)
+  ret_val = 0
+  d_dir = dir_name.chomp("\\").chomp("/")
+  e_dir = except_dir.chomp("\\").chomp("/")
+  if d_dir.chomp("\\").start_with?(e_dir.chomp("\\"))
+    ret_val = 1
+  else
+    ret_val = 0
+  end
+  return ret_val
+end
+
+def is_exception_directory(except_hash, dir_name)
+  found_in_exception = 0
+  return_value = false
+  except_hash.each{|key, value| found_in_exception += is_in_exception(value, dir_name) }
+  if found_in_exception > 0 
+    return_value = true
+  end
+  return return_value
+end
+
+def process_directory(dir_name, bkup_dir, except_hash)
 
   puts " ******* Processing Directory: #{dir_name}"
   total_file = 0
@@ -39,27 +61,29 @@ def process_directory(dir_name, bkup_dir)
 
   # First, process files in this dir
   Find.find(dir_name) do |item|
- 
+  
     file_path = File.dirname(item)
     file_name = File.basename(item)
 
-    if FileTest.directory?(item)
-      create_dir(File.join(bkup_dir, item))
+    if is_exception_directory(except_hash, file_path) 
+      puts "The directory #{file_path} is in an exception direcotry"
     else
-      total_file += 1
-      fileAction = determine_file_action(file_path, bkup_dir, file_name)
-      case fileAction
-        when DirAction::Create
-          FileUtils.cp(item, File.join(bkup_dir, file_path))
-          total_add += 1
-        when DirAction::Update
-          FileUtils.cp(item, File.join(bkup_dir, file_path))
-          total_update += 1
+      if FileTest.directory?(item)
+        create_dir(File.join(bkup_dir, item))
+      else
+        total_file += 1
+        fileAction = determine_file_action(file_path, bkup_dir, file_name)
+        case fileAction
+          when DirAction::Create
+            FileUtils.cp(item, File.join(bkup_dir, file_path))
+            total_add += 1
+          when DirAction::Update
+            FileUtils.cp(item, File.join(bkup_dir, file_path))
+            total_update += 1
+        end
       end
     end
-  
   end
-
   puts "   ***  Total Files Added:    #{total_add}"
   puts "   ***  Total Files Updated:  #{total_update}"
 
@@ -70,11 +94,12 @@ end
 # -----------------------------------------------------
 config_file = File.read('home_backup.json')
 config_hash = JSON.parse(config_file)
+except_hash = config_hash['local_exception']
 
 backup_dir = File.join(config_hash['backup_directory'] ,
                        config_hash['computer_id'])
 create_dir(backup_dir)
 
-config_hash['local_directory'].each{|key, value| process_directory(value, backup_dir)}
+config_hash['local_directory'].each{|key, value| process_directory(value, backup_dir, except_hash)}
 
 puts " *********** Done ************* "
